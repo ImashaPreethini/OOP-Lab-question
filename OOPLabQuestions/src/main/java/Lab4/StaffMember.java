@@ -47,8 +47,21 @@ public abstract class StaffMember {
     public static int getstaffCount(){
         return staffCount;
     }
+    
+    public void changeDepartment(String newDepartment){
+        if (newDepartment != null && !newDepartment.isEmpty()) {
+        this.department = newDepartment;
+    }
+    }
+    public final void showCommonNotice() {
+        System.out.println("Notice: Salary payments are processed at the end of each month.");
 }  
+}
 
 /*
 staffCount is static because it is shared among all objects of StaffMember.
+*/
+
+/*
+changeDepartment() is useful because it allows safe and controlled updating of the department
 */
