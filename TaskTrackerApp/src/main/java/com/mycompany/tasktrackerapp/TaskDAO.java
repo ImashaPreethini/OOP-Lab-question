@@ -35,4 +35,24 @@ public class TaskDAO {
         }
         return null;
     }
+
+public boolean updateTask(Task task) throws SQLException {
+        String sql = "UPDATE tasks SET task_title = ?, status = ? WHERE task_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, task.getTaskTitle());
+            pstmt.setString(2, task.getStatus());
+            pstmt.setInt(3, task.getTaskId());
+            return pstmt.executeUpdate() > 0;
+        }
+    }
+
+public boolean deleteTask(int taskId) throws SQLException {
+        String sql = "DELETE FROM tasks WHERE task_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, taskId);
+            return pstmt.executeUpdate() > 0;
+        }
+    }
 }

@@ -9,7 +9,7 @@ package com.mycompany.tasktrackerapp;
  * @author imash
  */
 public class TaskFrame extends javax.swing.JFrame {
-    private TaskDAO taskDAO;
+    private TaskDAO taskDAO = new TaskDAO();
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(TaskFrame.class.getName());
 
@@ -65,8 +65,10 @@ public class TaskFrame extends javax.swing.JFrame {
         AddButton.addActionListener(this::AddButtonActionPerformed);
 
         SearchButton.setText("Search");
+        SearchButton.addActionListener(this::SearchButtonActionPerformed);
 
         UpdateButton.setText("Update");
+        UpdateButton.addActionListener(this::UpdateButtonActionPerformed);
 
         DeleteButton.setText("Delete");
         DeleteButton.addActionListener(this::DeleteButtonActionPerformed);
@@ -134,32 +136,106 @@ public class TaskFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_TaskIDTextFieldActionPerformed
 
     private void AddButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddButtonActionPerformed
-   
-    int id = Integer.parseInt(TaskIDTextField.getText().trim());
-    String title = TaskTitletextfield.getText().trim();
-    String status = StatusComboBox.getSelectedItem().toString();
-
-    Task task = new Task(id, title, status);
-
+                                           
     try {
+        int id = Integer.parseInt(TaskIDTextField.getText().trim());
+        String title = TaskTitletextfield.getText().trim();
+        String statusValue = StatusComboBox.getSelectedItem().toString();
+
+        if (title.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Task Title cannot be empty!", "Validation Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         
+        if (taskDAO.searchTask(id) != null) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Task ID already exists!", "Duplicate ID Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        Task task = new Task(id, title, statusValue);
         if (taskDAO.addTask(task)) {
             javax.swing.JOptionPane.showMessageDialog(this, "Task Added Successfully!");
             clearFields();
         }
+    } catch (NumberFormatException ex) {
+        javax.swing.JOptionPane.showMessageDialog(this, "Invalid Task ID! Enter a numeric value.", "Input Error", javax.swing.JOptionPane.ERROR_MESSAGE);
     } catch (java.sql.SQLException ex) {
-        javax.swing.JOptionPane.showMessageDialog(this, "Database Error: " + ex.getMessage());
+        javax.swing.JOptionPane.showMessageDialog(this, "Database Error: " + ex.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
     }
+
         
     }//GEN-LAST:event_AddButtonActionPerformed
 
     private void ClearButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ClearButtonActionPerformed
-       clearFields(); // TODO add your handling code here:
+                                              
+    clearFields(); 
+// TODO add your handling code here:
     }//GEN-LAST:event_ClearButtonActionPerformed
 
     private void DeleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeleteButtonActionPerformed
+                                            
+    try {
+        int id = Integer.parseInt(TaskIDTextField.getText().trim());
+        
+        if (taskDAO.deleteTask(id)) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Task Deleted Successfully!");
+            clearFields();
+        } else {
+            javax.swing.JOptionPane.showMessageDialog(this, "Task ID not found to delete!", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
+    } catch (Exception ex) {
+        javax.swing.JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+    }
         // TODO add your handling code here:
     }//GEN-LAST:event_DeleteButtonActionPerformed
+
+    private void SearchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SearchButtonActionPerformed
+                                                 
+    try {
+        int id = Integer.parseInt(TaskIDTextField.getText().trim());
+        Task task = taskDAO.searchTask(id); 
+
+        if (task != null) {
+           
+            TaskTitletextfield.setText(task.getTaskTitle());
+            StatusComboBox.setSelectedItem(task.getStatus());
+        } else {
+          
+            javax.swing.JOptionPane.showMessageDialog(this, "Task not found!", "Search Result", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+        }
+    } catch (NumberFormatException ex) {
+        javax.swing.JOptionPane.showMessageDialog(this, "Invalid Task ID!", "Input Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+    } catch (java.sql.SQLException ex) {
+        javax.swing.JOptionPane.showMessageDialog(this, "Database Error: " + ex.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+    }
+ // TODO add your handling code here:
+    }//GEN-LAST:event_SearchButtonActionPerformed
+
+    private void UpdateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UpdateButtonActionPerformed
+                                           
+    try {
+        int id = Integer.parseInt(TaskIDTextField.getText().trim());
+        String title = TaskTitletextfield.getText().trim();
+        String statusValue = StatusComboBox.getSelectedItem().toString();
+
+        if (title.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Task Title cannot be empty!", "Validation Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        Task task = new Task(id, title, statusValue);
+        if (taskDAO.updateTask(task)) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Task Updated Successfully!");
+            clearFields();
+        } else {
+            javax.swing.JOptionPane.showMessageDialog(this, "Task ID not found to update!", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
+    } catch (Exception ex) {
+        javax.swing.JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+    }
+        // TODO add your handling code here:
+    }//GEN-LAST:event_UpdateButtonActionPerformed
 
     /**
      * @param args the command line arguments
